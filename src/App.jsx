@@ -25,27 +25,86 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [toast]);
 
+  function handleChangePage(pageName) {
+    setActivePage(pageName);
+
+    setTimeout(() => {
+      const mainElement = document.querySelector('.main');
+
+      if (mainElement) {
+        mainElement.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: 'smooth',
+        });
+      }
+
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+      });
+    }, 100);
+  }
+
+  function handleLogout() {
+    setLoggedIn(false);
+    setActivePage('dashboard');
+
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+      });
+    }, 100);
+  }
+
   if (!loggedIn) return <Login onLogin={() => setLoggedIn(true)} />;
 
-  const props = { products, setProducts, transactions, setTransactions, showToast, setActivePage };
+  const props = {
+    products,
+    setProducts,
+    transactions,
+    setTransactions,
+    showToast,
+    setActivePage: handleChangePage,
+  };
 
   const renderPage = () => {
     switch (activePage) {
-      case 'dashboard': return <Dashboard {...props} />;
-      case 'products': return <DataBarang {...props} />;
-      case 'incoming': return <StockForm {...props} type="masuk" />;
-      case 'outgoing': return <StockForm {...props} type="keluar" />;
-      case 'barcode': return <BarcodeScanner {...props} />;
-      case 'restock': return <Restock {...props} />;
-      case 'reports': return <Laporan {...props} />;
-      default: return <Dashboard {...props} />;
+      case 'dashboard':
+        return <Dashboard {...props} />;
+      case 'products':
+        return <DataBarang {...props} />;
+      case 'incoming':
+        return <StockForm {...props} type="masuk" />;
+      case 'outgoing':
+        return <StockForm {...props} type="keluar" />;
+      case 'barcode':
+        return <BarcodeScanner {...props} />;
+      case 'restock':
+        return <Restock {...props} />;
+      case 'reports':
+        return <Laporan {...props} />;
+      default:
+        return <Dashboard {...props} />;
     }
   };
 
   return (
     <div className="app">
-      <Sidebar activePage={activePage} setActivePage={setActivePage} onLogout={() => setLoggedIn(false)} />
+      <Sidebar
+        activePage={activePage}
+        setActivePage={handleChangePage}
+        onLogout={handleLogout}
+      />
+
       <main className="main">{renderPage()}</main>
+
       <Toast toast={toast} />
     </div>
   );
